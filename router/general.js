@@ -14,15 +14,18 @@ public_users.get('/', async (req, res) => {
   }
 });
 
-// Get book by ISBN (promise callbacks with Axios)
-public_users.get('/isbn/:isbn', (req, res) => {
-  axios.get(BASE_URL)
-    .then((response) => {
-      const book = response.data[req.params.isbn];
-      if (book) return res.status(200).json(book);
-      return res.status(404).json({ message: 'Book not found' });
-    })
-    .catch(() => res.status(500).json({ message: 'Error fetching book' }));
+// Get book by ISBN (async/await with Axios)
+public_users.get('/isbn/:isbn', async (req, res) => {
+  try {
+    const response = await axios.get(BASE_URL);
+    const book = Object.values(response.data).find(
+      (b) => String(b.isbn) === req.params.isbn
+    );
+    if (book) return res.status(200).json(book);
+    return res.status(404).json({ message: 'Book not found' });
+  } catch (error) {
+    return res.status(500).json({ message: 'Error fetching book' });
+  }
 });
 
 // Get books by author (async/await with Axios)
@@ -49,5 +52,3 @@ public_users.get('/title/:title', (req, res) => {
     })
     .catch(() => res.status(500).json({ message: 'Error fetching books by title' }));
 });
-
-module.exports.general = public_users;
